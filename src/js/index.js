@@ -9,6 +9,21 @@ import { toastAlert } from './toast-alert.js';
 import { debounce } from './utils/debounce.js';
 import './custom-clipboard-copy.js';
 
+function postScan(barcode) {
+  // console.log(barcode)
+  const { format, rawValue } = barcode
+  // console.log(`${format} ${rawValue}`)
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const callback = urlParams.get("callback")
+  if(callback) {
+    const url = new URL(callback)
+    console.log(url)
+    url.searchParams.append("barcode", rawValue)
+    console.log(url)
+    window.location.href = url.href
+  }
+}
 (async function () {
   const NO_BARCODE_DETECTED = 'No barcode detected';
   const ACCEPTED_MIME_TYPES = ['image/jpg', 'image/jpeg', 'image/png', 'image/apng', 'image/gif', 'image/webp', 'image/avif'];
@@ -144,9 +159,9 @@ import './custom-clipboard-copy.js';
     return async (duration, frequency, volume, type, callback) => {
       const { value: settings } = await getSettings();
 
-      if (!settings?.beep) {
-        return;
-      }
+      // if (!settings?.beep) {
+      //   return;
+      // }
 
       const oscillator = audioCtx.createOscillator();
       const gainNode = audioCtx.createGain();
@@ -278,7 +293,7 @@ import './custom-clipboard-copy.js';
   }
 
   async function vibrate(duration = 100) {
-    const { value: settings } = await getSettings();
+    // const { value: settings } = await getSettings();
 
     if (typeof window.navigator.vibrate !== 'function' || !settings?.vibrate) {
       return;
@@ -386,6 +401,7 @@ import './custom-clipboard-copy.js';
     try {
       let barcode = {};
       barcode = await detectBarcode(capturePhotoVideoEl);
+      postScan(barcode)
       window.cancelAnimationFrame(rafId);
       emptyResults(cameraResultsEl);
       createResult(barcode.rawValue, cameraResultsEl);
@@ -395,6 +411,7 @@ import './custom-clipboard-copy.js';
       scanFrameEl.hidden = true;
       beep(200, 860, 0.03, 'square');
       vibrate();
+      
       return;
     } catch (err) {
       // Fail silently...
@@ -419,6 +436,7 @@ import './custom-clipboard-copy.js';
       image.onload = async () => {
         try {
           const barcode = await detectBarcode(image);
+          postScan(barcode)
           emptyResults(fileResultsEl);
           createResult(barcode.rawValue, fileResultsEl);
           addToHistory(barcode.rawValue);

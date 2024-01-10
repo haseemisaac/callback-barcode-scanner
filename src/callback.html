@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Callback Page</title>
+</head>
+<body>
+    <h1 id="heading">Barcode needs to be attached to GET Params</h1>
+</body>
+<script>
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const barcode = urlParams.get("barcode")
+    if(barcode) {
+        document.getElementById("heading").innerText = `Your Barcode is ${barcode}`
+    }
+</script>
+</html>
